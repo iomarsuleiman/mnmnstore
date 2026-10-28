@@ -1,0 +1,38 @@
+name: Import current production frontend
+
+on:
+  push:
+    paths:
+      - .github/workflows/import-live.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download tested production frontend
+        run: |
+          set -eu
+          curl --fail --silent --show-error --location --retry 3 \
+            'https://mnmnstore.vercel.app/' -o index.html
+          test "$(wc -c < index.html)" -gt 20000
+          grep -q 'syncShared().catch' index.html
+          grep -q 'Forgot PIN?' index.html
+          if grep -q 'PIN_SHA' index.html; then
+            echo 'Refusing to import legacy browser-local PIN version'
+            exit 1
+          fi
+      - name: Commit import to main
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Import live MNMN Store HTML'
+            git push origin HEAD:main
+          fi
