@@ -70,7 +70,7 @@ const defaults=[
 {id:'call',name:'Call',price:5,image:'https://images.unsplash.com/photo-1763296556896-5b17f1414525?auto=format&fit=crop&w=900&q=80'}
 ];
 const el=id=>document.getElementById(id),fmt=n=>Number.isInteger(n)?String(n):Number(n).toFixed(1);
-let balance=6,history=[],products=defaults.map(p=>({...p})),currentSlide=0,autoTimer=null,fadeTimer=null;
+let balance=0,history=[],products=defaults.map(p=>({...p})),currentSlide=0,autoTimer=null,fadeTimer=null;
 // Balance comes from the shared server.
 // History comes from the shared server.
 try{const p=JSON.parse(localStorage.getItem(PRODUCTS)||'null');if(Array.isArray(p))products=p.filter(v=>v&&typeof v.id==='string'&&typeof v.name==='string'&&Number.isFinite(v.price)&&v.price>0).slice(0,70)}catch(e){}
